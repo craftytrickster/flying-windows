@@ -1,0 +1,16 @@
+{
+  "name": "flying-windows-homage",
+  "collaborators": [
+    "David Raifaizen <david.raifaizen@protonmail.com>"
+  ],
+  "version": "0.1.0",
+  "license": "MIT",
+  "files": [
+    "flying_windows_homage_bg.wasm",
+    "flying_windows_homage.js",
+    "flying_windows_homage.d.ts"
+  ],
+  "module": "flying_windows_homage.js",
+  "types": "flying_windows_homage.d.ts",
+  "sideEffects": false
+}
