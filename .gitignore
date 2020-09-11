@@ -1,0 +1,5 @@
+Rust/target
+Rust/pkg
+
+.vscode
+.idea
