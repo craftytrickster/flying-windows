@@ -35,7 +35,6 @@ impl Dimensions {
 #[derive(Debug)]
 struct WindowsLogo {
     position: Coords2d,
-    dimensions: Dimensions,
     speed: f64,
     color: Color,
 }
@@ -45,10 +44,6 @@ impl WindowsLogo {
         // setting dummy placeholder values
         let mut logo = WindowsLogo {
             position: Coords2d(0f64, 0f64),
-            dimensions: Dimensions {
-                width: 0,
-                height: 0,
-            },
             speed,
             color: Color::White,
         };
@@ -84,12 +79,6 @@ impl WindowsLogo {
 
         self.position = random_position;
         self.color = random_color;
-
-        // can set dimensions to none, since it will get modified in the update_state method
-        self.dimensions = Dimensions {
-            width: 0,
-            height: 0,
-        };
     }
 }
 
@@ -163,15 +152,10 @@ impl ScreenSaver {
             logo.position.0 += ((x - cx) * logo.speed) * time_multiplier;
             logo.position.1 += ((y - cy) * logo.speed) * time_multiplier;
 
+            let Coords2d(x, y) = logo.position;
+
             let width = MAGIC_SIZE_CONSTANT * (x - cx).abs();
             let height = MAGIC_SIZE_CONSTANT * (y - cy).abs();
-
-            logo.dimensions = Dimensions {
-                width: width as u32,
-                height: height as u32,
-            };
-
-            let Coords2d(x, y) = logo.position;
 
             if x > dimensions.width as f64 + width
                 || x < -width
@@ -184,17 +168,29 @@ impl ScreenSaver {
     }
 
     fn render_content(&self) {
+        const MAGIC_CONSTANT: f64 = 0.205;
+
         self.browser.paint_background();
+        let browser_dimensions = self.browser.get_dimensions();
+        let center = browser_dimensions.center();
 
         for logo in self.logos.borrow().iter() {
             let img = self.image_factory.get_tinted_image(logo.color);
 
-            self.browser.draw_image(
-                img,
-                &logo.position,
-                logo.dimensions.width as f64,
-                logo.dimensions.height as f64,
+            let width = img.natural_width() as f64;
+            let height = img.natural_height() as f64;
+
+            let dist_from_center = f64::sqrt(
+                f64::powi(center.0 - logo.position.0, 2) + f64::powi(center.1 - logo.position.1, 2),
             );
+            let radius = browser_dimensions.width.max(browser_dimensions.height) as f64 / 2f64;
+
+            let endpoint = radius + width.max(height);
+
+            let proportion = (dist_from_center / endpoint) * MAGIC_CONSTANT;
+
+            self.browser
+                .draw_image(img, &logo.position, width * proportion, height * proportion);
         }
     }
 }
@@ -207,7 +203,7 @@ pub fn main() -> Result<(), JsValue> {
         let browser = BrowserManager::new();
 
         let number_windows: u8 = 20;
-        let magic_velocity_number: f64 = 1.2; // just trial and error to the value that I think looked good
+        let magic_velocity_number: f64 = 1.22; // just trial and error to the value that I think looked good
 
         let screensaver = ScreenSaver::new(browser, factory, number_windows, magic_velocity_number);
 

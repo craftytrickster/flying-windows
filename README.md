@@ -19,7 +19,7 @@ Currently this has been implemented in
 
 * [X] Rust
 * [X] JavaScript
-* []  And more....?
+* [ ]  And more....?
 
 Feel free to contribute an implementation in your `$FAVORITE_LANGUAGE` if it is not currently here.
 Hopefully this can be used as a reference to see how various languages interact with the HTML5 canvas.

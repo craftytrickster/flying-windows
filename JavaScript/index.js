@@ -39,7 +39,6 @@ function getRandomPosition(minX, minY, maxX, maxY) {
 
 const APPROX_FRAMES_PER_SECOND = 60;
 const TIME_SLICE = 1000 / APPROX_FRAMES_PER_SECOND;
-const MAGIC_SIZE_CONSTANT = 0.22; // just seems to work
 
 
 class WindowsLogo {
@@ -83,6 +82,8 @@ class ScreenSaver {
 
 
     _updateState(timeSinceLastTick) {
+        const MAGIC_SIZE_CONSTANT = 0.22; // just seems to work
+
         const cx = this.canvas.width / 2;
         const cy = this.canvas.height / 2;
 
@@ -107,6 +108,8 @@ class ScreenSaver {
     }
 
     _renderContent() {
+        const MAGIC_CONSTANT= 0.205;
+
         // paint black background
         this.context.fillStyle = "black";
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -116,15 +119,23 @@ class ScreenSaver {
         
         // paint windows
         for (const windowsLogo of this.logos) {
-            // Bigger when it is closer to screen
-            const width = MAGIC_SIZE_CONSTANT * Math.abs(windowsLogo.x - cx);
-            const height = MAGIC_SIZE_CONSTANT * Math.abs(windowsLogo.y - cy);
-
-
             const img = this.imageFactory.getColorImage(windowsLogo.color);
 
+            const width = img.naturalWidth;
+            const height = img.naturalHeight;
+
+            const distFromCenter = Math.sqrt(
+                Math.pow(cx - windowsLogo.x, 2) + Math.pow(cy - windowsLogo.y, 2)
+            );
+
+            const radius = Math.max(this.canvas.width, this.canvas.height);
+
+            let endpoint = radius + Math.max(width, height);
+
+            const proportion = (distFromCenter / endpoint) * MAGIC_CONSTANT;
+
             this.context.drawImage(
-                img, windowsLogo.x, windowsLogo.y, width, height
+                img, windowsLogo.x, windowsLogo.y, width * proportion, height * proportion
             );
         }
     }
